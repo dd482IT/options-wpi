@@ -291,7 +291,7 @@ public class Options {
    * <p>This field is public so that clients can reset it. Setting it enables one program to
    * masquerade as another program, based on parsed options.
    */
-  public @Nullable String usageSynopsis = null;
+  public String usageSynopsis = null;
 
   /**
    * In usage messages, use dashes (hyphens) to split words in option names. This only applies to
@@ -356,10 +356,10 @@ public class Options {
     //    Option option;
 
     /** Object containing the field. Null if the field is static. */
-    @UnknownInitialization @Nullable Object obj;
+    Object obj;
 
     /** Short (one-character) argument name. */
-    @Nullable String shortName;
+    String shortName;
 
     /**
      * Long argument name. Uses '-' or '_' to separate words, depending on the value of {@link
@@ -374,13 +374,13 @@ public class Options {
     String description;
 
     /** Full Javadoc description. */
-    @Nullable String jdoc;
+    String jdoc;
 
     /**
      * Maps names of enum constants to their corresponding Javadoc. This is used by OptionsDoclet to
      * generate documentation for enum-type options. Null if the baseType is not an Enum.
      */
-    @MonotonicNonNull Map<String, String> enumJdoc;
+    Map<String, String> enumJdoc;
 
     /**
      * Name of the argument type. Defaults to the type of the field, but user can override this in
@@ -392,7 +392,7 @@ public class Options {
     Class<?> baseType;
 
     /** Default value of the option as a string. */
-    @Nullable String defaultStr = null;
+    String defaultStr = null;
 
     /**
      * If true, the default value string for this option will be excluded from OptionsDoclet
@@ -401,19 +401,19 @@ public class Options {
     boolean noDocDefault = false;
 
     /** If the option is a list, this references that list. */
-    @MonotonicNonNull List<Object> list = null;
+    List<Object> list = null;
 
     /** Constructor that takes one String for the type. */
-    @Nullable Constructor<?> constructor = null;
+    Constructor<?> constructor = null;
 
     /**
      * Factory that takes a string (some classes don't have a string constructor) and always returns
      * non-null.
      */
-    @Nullable Method factory = null;
+    Method factory = null;
 
     /** The second argument to the factory; non-null if needed. */
-    @Nullable Object factoryArg2 = null;
+    Object factoryArg2 = null;
 
     /**
      * If true, this OptionInfo is not output when printing documentation.
@@ -439,7 +439,7 @@ public class Options {
     OptionInfo(
         Field field,
         Option option,
-        @UnknownInitialization @Nullable Object obj,
+        Object obj,
         boolean unpublicized) {
       this.field = field;
       //      this.option = option;
@@ -584,8 +584,7 @@ public class Options {
      * @return a one-line description of the option
      */
     @Override
-    @SideEffectFree
-    public String toString(@GuardSatisfied OptionInfo this) {
+    public String toString(OptionInfo this) {
       String prefix = useSingleDash ? "-" : "--";
       String shortNameStr = "";
       if (shortName != null) {
@@ -667,7 +666,7 @@ public class Options {
    *
    * @param args the classes whose options to process
    */
-  public Options(@UnknownInitialization Object... args) {
+  public Options(Object... args) {
     this("", args);
   }
 
@@ -680,7 +679,7 @@ public class Options {
    * @param usageSynopsis a synopsis of how to call your program
    * @param args the classes whose options to process
    */
-  public Options(String usageSynopsis, @UnknownInitialization Object... args) {
+  public Options(String usageSynopsis, Object... args) {
 
     if (args.length == 0) {
       throw new Error("Must pass at least one object to Options constructor");
@@ -698,12 +697,12 @@ public class Options {
       boolean isClass = obj instanceof Class<?>;
       // null or a key in groupNameToOptionGroup (that is, an option group name)
       @SuppressWarnings("keyfor")
-      @KeyFor("groupNameToOptionGroup") String currentGroup = null;
+      String currentGroup = null;
 
       @SuppressWarnings({
         "nullness" // if isClass is true, obj is a non-null initialized Class
       })
-      @Initialized @NonNull Class<?> clazz = (isClass ? (@Initialized @NonNull Class<?>) obj : obj.getClass());
+      @NonNull Class<?> clazz = (isClass ? (@NonNull Class<?>) obj : obj.getClass());
       if (mainClass == Void.TYPE) {
         mainClass = clazz;
       }
@@ -713,7 +712,7 @@ public class Options {
         try {
           // Possible exception because "obj" is not yet initialized; catch it and proceed
           @SuppressWarnings("nullness:initialization.cast")
-          Object objNonraw = (@Initialized Object) obj;
+          Object objNonraw = (Object) obj;
           if (debugEnabled) {
             System.err.printf("Considering field %s of object %s%n", f, objNonraw);
           }
@@ -752,7 +751,7 @@ public class Options {
         @SuppressWarnings(
             "nullness:assignment" // new C(underInit): @UnderInitialization; @Initialized is safe
         )
-        @Initialized OptionInfo oi = new OptionInfo(f, option, isClass ? null : obj, unpublicized);
+        OptionInfo oi = new OptionInfo(f, option, isClass ? null : obj, unpublicized);
         options.add(oi);
 
         // The @OptionGroup annotation on this field, or null
@@ -803,7 +802,7 @@ public class Options {
           throw new Error("missing @OptionGroup annotation in field " + f + " of class " + obj);
         }
 
-        @NonNull OptionGroupInfo ogi = groupNameToOptionGroup.get(currentGroup);
+        OptionGroupInfo ogi = groupNameToOptionGroup.get(currentGroup);
         ogi.optionList.add(oi);
       } // loop through fields
     } // loop through args
@@ -873,12 +872,12 @@ public class Options {
    * @return this element's annotation for the specified annotation type if present on this element,
    *     else null
    */
-  private static <T extends Annotation> @Nullable T safeGetAnnotation(
+  private static <T extends Annotation> T safeGetAnnotation(
       Field f, Class<T> annotationClass) {
-    @Nullable T annotation;
+    T annotation;
     try {
       // @SuppressWarnings("nullness:initialization.cast")
-      @Nullable T cast = f.getAnnotation((Class<@NonNull T>) annotationClass);
+      T cast = f.getAnnotation((Class<T>) annotationClass);
       annotation = cast;
     } catch (Exception e) {
       // Can get
@@ -1290,7 +1289,6 @@ public class Options {
    *
    * @return true if option groups are being used
    */
-  @Pure
   boolean hasGroups() {
     return hasGroups;
   }
@@ -1300,7 +1298,6 @@ public class Options {
    *
    * @return true if single dashes are being used
    */
-  @Pure
   boolean getUseSingleDash() {
     return useSingleDash;
   }
@@ -1335,7 +1332,7 @@ public class Options {
     "nullness:argument", // object can be null if field is static
     "interning:argument" // interning is not relevant to the call
   })
-  private void setArg(OptionInfo oi, String argName, @Nullable String argValue)
+  private void setArg(OptionInfo oi, String argName, String argValue)
       throws ArgException {
 
     Field f = oi.field;
@@ -1491,7 +1488,7 @@ public class Options {
     try {
       if (oi.constructor != null) {
         @SuppressWarnings("signedness:assignment") // assume command-line numeric args are signed
-        @Signed Object signedVal = oi.constructor.newInstance(new Object[] {argValue});
+        Object signedVal = oi.constructor.newInstance(new Object[] {argValue});
         val = signedVal;
       } else if (oi.baseType.isEnum()) {
         @SuppressWarnings({"unchecked", "rawtypes"})
@@ -1625,8 +1622,7 @@ public class Options {
     "allcheckers:purity",
     "lock:method.guarantee.violated" // side effect to local state (string creation)
   })
-  @SideEffectFree
-  public String toString(@GuardSatisfied Options this) {
+  public String toString(Options this) {
     StringJoiner out = new StringJoiner(lineSeparator);
 
     for (OptionInfo oi : options) {
@@ -1660,8 +1656,7 @@ public class Options {
      * @param format the format string
      * @param args the arguments to be formatted by the format string
      */
-    @FormatMethod
-    public ArgException(String format, @Nullable Object... args) {
+    public ArgException(String format, Object... args) {
       super(String.format(format, args));
     }
   }
@@ -1669,9 +1664,9 @@ public class Options {
   /** The result of parsing the argument to {@code @Option}. */
   private static class ParseResult {
     /** The short name of an option, or null if none. */
-    @Nullable String shortName;
+    String shortName;
     /** The type name of an option, or null if none. */
-    @Nullable String typeName;
+    String typeName;
     /** The description of an option. */
     String description;
 
@@ -1682,7 +1677,7 @@ public class Options {
      * @param typeName the type name of an option, or null if none
      * @param description the description of an option
      */
-    ParseResult(@Nullable String shortName, @Nullable String typeName, String description) {
+    ParseResult(String shortName, String typeName, String description) {
       this.shortName = shortName;
       this.typeName = typeName;
       this.description = description;
@@ -1702,7 +1697,7 @@ public class Options {
     // Get the short name, long name, and description
     String shortName;
     String typeName;
-    @NonNull String description;
+    String description;
 
     // Get the short name (if any)
     if (val.startsWith("-")) {
@@ -1740,9 +1735,9 @@ public class Options {
    * @param m a map whose keyset will be sorted
    * @return a sorted version of m.keySet()
    */
-  private static <K extends Comparable<? super K>, V> Collection<@KeyFor("#1") K> sortedKeySet(
+  private static <K extends Comparable<? super K>, V> Collection<K> sortedKeySet(
       Map<K, V> m) {
-    ArrayList<@KeyFor("#1") K> theKeys = new ArrayList<>(m.keySet());
+    ArrayList<K> theKeys = new ArrayList<>(m.keySet());
     Collections.sort(theKeys);
     return theKeys;
   }
@@ -1761,7 +1756,7 @@ public class Options {
       "nullness" // should not be called with non-static field and null obj, but if so, the
   // exception is caught and handled
   )
-  private static Object fieldGet(Field field, @UnknownInitialization @Nullable Object obj) {
+  private static Object fieldGet(Field field, @Nullable Object obj) {
     try {
       return field.get(obj);
     } catch (Exception e) {

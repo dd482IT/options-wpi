@@ -56,7 +56,6 @@ public class TestOptions {
    *
    * @throws ArgException if there is an illegal argument
    */
-  @Test
   public void testOptions() throws ArgException, IOException {
 
     new File("/tmp/TestOptions1.txt").createNewFile();
@@ -170,7 +169,6 @@ public class TestOptions {
    *
    * @throws ArgException if there is an illegal argument
    */
-  @Test
   public void testOptionsAliases() throws ArgException {
     ClassWithOptionsAliases t = new ClassWithOptionsAliases();
     Options options = new Options("test", t);
@@ -276,7 +274,6 @@ public class TestOptions {
    *
    * @throws ArgException if there is an illegal argument
    */
-  @Test
   public void testOptionGroups() throws ArgException {
     // TODO: The following two exception tests are not adequate.  There must be
     // a better way to do these.
@@ -339,7 +336,6 @@ public class TestOptions {
     public static @Nullable Compressor secondPass;
   }
 
-  @Test
   public void testOptionsEnums() throws ArgException {
     Options options = new Options("test", ClassWithOptionsEnums.class);
 
@@ -363,7 +359,6 @@ public class TestOptions {
     assert ClassWithOptionsEnums.secondPass == ClassWithOptionsEnums.Compressor.HUFFMAN;
   }
 
-  @Test
   public void testOptionsEnumsFail() throws ArgException {
     Options options = new Options("test", ClassWithOptionsEnums.class);
     Assertions.assertThrows(

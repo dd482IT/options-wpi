@@ -200,13 +200,13 @@ public class OptionsDoclet implements Doclet {
   private String endDelim = "<!-- end options doc -->";
 
   /** The file into which options documentation is inserted. */
-  private @Nullable File docFile = null;
+  private File docFile = null;
   /** File name of destination for output. */
-  private @Nullable String outFileName = null;
+  private String outFileName = null;
   /** Name of destination directory. */
-  private @Nullable String destDir = null;
+  private String destDir = null;
   /** Destination for output; is set from destDir and outFileName. */
-  private @Nullable File outFile = null;
+  private File outFile = null;
 
   /** If true, then edit docFile in place (and docFile is non-null). */
   private boolean inPlace = false;
@@ -273,7 +273,7 @@ public class OptionsDoclet implements Doclet {
 
       Class<?> clazz;
       try {
-        @BinaryName String className = getBinaryName((TypeElement) doc);
+        String className = getBinaryName((TypeElement) doc);
         // Note: Thread.currentThread().getContextClassLoader() lacks the needed classes.
         clazz = Class.forName(className, true, OptionsDoclet.class.getClassLoader());
       } catch (ClassNotFoundException e) {
@@ -292,7 +292,7 @@ public class OptionsDoclet implements Doclet {
           Constructor<?> c = clazz.getDeclaredConstructor();
           c.setAccessible(true);
           @SuppressWarnings("signedness:assignment")
-          @Signed Object signedObj = c.newInstance(new Object[0]);
+          Object signedObj = c.newInstance(new Object[0]);
           objs.add(signedObj);
         } catch (Exception e) {
           System.out.println("Classpath:");
@@ -635,7 +635,6 @@ public class OptionsDoclet implements Doclet {
    * @return the docfile, but with the command-line argument documentation updated
    * @throws Exception if there is trouble reading files
    */
-  @RequiresNonNull("docFile")
   private String newDocFileText() throws Exception {
     StringJoiner b = new StringJoiner(lineSep);
     try (BufferedReader doc = Files.newBufferedReader(docFile.toPath(), UTF_8)) {
@@ -1160,7 +1159,7 @@ public class OptionsDoclet implements Doclet {
    * @return the binary name of the type
    */
   @SuppressWarnings("signature:return") // string manipulation
-  public static @BinaryName String getBinaryName(TypeElement te) {
+  public static String getBinaryName(TypeElement te) {
     Element enclosing = te.getEnclosingElement();
     String simpleName = te.getSimpleName().toString();
     if (enclosing == null) { // is this possible?
